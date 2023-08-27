@@ -4,52 +4,74 @@ import (
 	"fmt"
 )
 
-func encode(input string) string {
-	result := ""
-	leftCount := 0
-	rightCount := 0
-	previousValue := 0
-	for i := 0; i < len(input); i++ {
-		if input[i] == 'L' {
-			leftCount++
-			if i > 0 && input[i-1] == 'L' {
-				rightCount = 1
-			}
-			previousValue = leftCount
-			if i == 0 {
-				result += fmt.Sprintf("%d", leftCount+10)
+func main() {
+	decoded := decode("LLRR=")
+	fmt.Printf("Decoded number: %s\n", decoded)
+}
 
-			} else {
-				result += fmt.Sprintf("%d", leftCount)
-			}
-		} else if input[i] == 'R' {
-			rightCount++
-			if i > 0 && input[i-1] == 'L' {
-				leftCount = 0
-			}
+func decode(encoded string) string {
+	var result string
+	var numbers []int
+	var previousNum = 0
+	for i := 0; i < len(encoded); i++ {
+		symbol1 := encoded[i]
+		if symbol1 == 'L' {
 			if i == 0 {
-				result += fmt.Sprintf("%d", rightCount+10)
+				fmt.Println("i am here L 0", "------", i)
+
+				numbers = append(numbers, 1)
+				numbers = append(numbers, 0)
 			} else {
-				result += fmt.Sprintf("%d", rightCount)
+				if encoded[i-1] == 'L' {
+					fmt.Println("i am here L 1", "------", i)
+					numbers = addAllNum(numbers)
+					previousNum = numbers[i-1] - 1
+					numbers = append(numbers, previousNum)
+				} else {
+					fmt.Println("i am here L 2", "------", i)
+					previousNum = numbers[i-1]
+					numbers = append(numbers, previousNum)
+				}
 			}
-			previousValue = rightCount
-		} else if input[i] == '=' {
+		} else if symbol1 == 'R' {
 			if i == 0 {
-				result += fmt.Sprintf("%d", previousValue+10)
+				fmt.Println("i am here R 0", "------", i)
+				numbers = append(numbers, 0)
+				numbers = append(numbers, 1)
 			} else {
-				result += fmt.Sprintf("%d", previousValue)
+				if encoded[i-1] == 'R' {
+					fmt.Println("i am here R 1", "------", i)
+					previousNum = numbers[i-1] + 1
+					numbers = append(numbers, previousNum)
+				} else {
+					fmt.Println("i am here R 2", "------", i)
+					previousNum = numbers[i-1] - 1
+					fmt.Println(previousNum)
+					numbers = append(numbers, previousNum)
+				}
+			}
+		} else if symbol1 == '=' {
+			if i == 0 {
+				fmt.Println("i am here = 0", "------", i)
+				numbers = append(numbers, 0)
+			} else {
+				fmt.Println("i am here = 1", "------", i)
+				previousNum = numbers[i-1]
+				numbers = append(numbers, previousNum)
 			}
 		}
 	}
-
+	fmt.Println(numbers)
 	return result
 }
 
-func main() {
-	//var userInput string
-	//fmt.Print("Enter input string: ")
-	//fmt.Scan(&userInput)
+func isLastSymbol(encoded string, i int) bool {
+	return i+1 == len(encoded)
+}
 
-	result := encode("LLRR=")
-	fmt.Println("Output:", result)
+func addAllNum(numbers []int) []int {
+	for i := 0; i < len(numbers); i++ {
+		numbers[i] = numbers[i] + 1
+	}
+	return numbers
 }
